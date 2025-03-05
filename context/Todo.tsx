@@ -1,8 +1,9 @@
 "use client";
 
 import type { ReactNode, FC, ReactElement } from "react";
-import { createContext, useState, useCallback } from "react";
+import { createContext, useState, useCallback, useEffect } from "react";
 import { nanoid } from "nanoid";
+import { get, cache } from "@/utils/localStorage";
 
 interface Props {
     children: ReactNode;
@@ -38,22 +39,23 @@ const TodosContext = createContext<TodosContextStructure>(defaultTodosContext);
 
 const TodosContextProvider: FC<Props> = ({ children }): ReactElement => {
 
-    const [items, setItems] = useState<Todos>({
-        "asdfsadf": { id: "asdfsadf", content: "Test todo", completed: false }
-    });
+    const [items, setItems] = useState<Todos>(defaultTodosContext.items);
 
     const addTodo = useCallback(
         (content: string): void => {
 
-            const newTodoID: TodoID = nanoid();
+            const newTodo: Todo = {
+                id: nanoid(),
+                content: content,
+                completed: false
+            };
 
             setItems(prevState => {
 
-                prevState[newTodoID] = {
-                    id: newTodoID,
-                    content: content,
-                    completed: false
-                }
+                prevState[newTodo.id] = newTodo;
+
+                // It is not recommended
+                cache("todos", prevState);
 
                 return {...prevState};
 
@@ -69,6 +71,9 @@ const TodosContextProvider: FC<Props> = ({ children }): ReactElement => {
 
                 delete prevState[id];
 
+                // It is not recommended
+                cache("todos", prevState);
+
                 return {...prevState};
 
             });
@@ -79,7 +84,13 @@ const TodosContextProvider: FC<Props> = ({ children }): ReactElement => {
     const changeStatus = useCallback(
         (id: TodoID): void => {
             setItems(prevState => {
-                return { ...prevState, [id]: { ...prevState[id], completed: !prevState[id].completed } };
+
+                prevState[id] = { ...prevState[id], completed: !prevState[id].completed };
+
+                // It is not recommended
+                cache("todos", prevState);
+
+                return { ...prevState };
             });
         },
         []
@@ -91,12 +102,25 @@ const TodosContextProvider: FC<Props> = ({ children }): ReactElement => {
 
                 prevState[id].content = content;
 
+                // It is not recommended
+                cache("todos", prevState);
+
                 return {...prevState};
 
             });
         },
         []
-    )
+    );
+
+    useEffect((): void => {
+
+        const cachedItems = get<Todos>("todos");
+
+        if (cachedItems) {
+            setItems(cachedItems);
+        }
+
+    }, []);
 
     return (
         <TodosContext.Provider value={{ items, addTodo, removeTodo, changeStatus, changeContent }}>
