@@ -85,7 +85,7 @@ const TodosContextProvider: FC<Props> = ({ children }): ReactElement => {
         (id: TodoID): void => {
             setItems(prevState => {
 
-                prevState[id] = { ...prevState[id], completed: !prevState[id].completed };
+                prevState = { ...prevState, [id]:{ ...prevState[id], completed: !prevState[id].completed } };
 
                 // It is not recommended
                 cache("todos", prevState);
