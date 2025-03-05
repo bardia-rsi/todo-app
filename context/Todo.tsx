@@ -38,7 +38,9 @@ const TodosContext = createContext<TodosContextStructure>(defaultTodosContext);
 
 const TodosContextProvider: FC<Props> = ({ children }): ReactElement => {
 
-    const [items, setItems] = useState<Todos>({});
+    const [items, setItems] = useState<Todos>({
+        "asdfsadf": { id: "asdfsadf", content: "Test todo", completed: false }
+    });
 
     const addTodo = useCallback(
         (content: string): void => {
@@ -77,11 +79,7 @@ const TodosContextProvider: FC<Props> = ({ children }): ReactElement => {
     const changeStatus = useCallback(
         (id: TodoID): void => {
             setItems(prevState => {
-
-                prevState[id].completed = !prevState[id].completed;
-
-                return prevState;
-
+                return { ...prevState, [id]: { ...prevState[id], completed: !prevState[id].completed } };
             });
         },
         []
@@ -107,6 +105,8 @@ const TodosContextProvider: FC<Props> = ({ children }): ReactElement => {
     );
 
 }
+
+export type { Todo };
 
 export { TodosContext };
 
