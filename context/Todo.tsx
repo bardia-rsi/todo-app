@@ -55,7 +55,7 @@ const TodosContextProvider: FC<Props> = ({ children }): ReactElement => {
                     completed: false
                 }
 
-                return prevState;
+                return {...prevState};
 
             });
 
@@ -69,7 +69,7 @@ const TodosContextProvider: FC<Props> = ({ children }): ReactElement => {
 
                 delete prevState[id];
 
-                return prevState;
+                return {...prevState};
 
             });
         },
@@ -91,7 +91,7 @@ const TodosContextProvider: FC<Props> = ({ children }): ReactElement => {
 
                 prevState[id].content = content;
 
-                return prevState;
+                return {...prevState};
 
             });
         },
